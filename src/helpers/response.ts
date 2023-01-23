@@ -7,6 +7,7 @@ export default (res: Response, status: number, data: any, mess: string = '') => 
             mess: mess
         });
     } else {
+        console.error(status, data);
         res.status(status).json({
             err: data.message ? data.message : data.message
         });

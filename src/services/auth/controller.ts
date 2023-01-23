@@ -35,7 +35,7 @@ export const register = async (req: Request, res: Response, next: NextFunction):
             await categoryRepository.save({
                 user: user
             });
-            response(res, 200, {token: generateToken(user)})
+            response(res, 201, {token: generateToken(user)})
         } else {
             response(res, 409, 'Email used');
         }

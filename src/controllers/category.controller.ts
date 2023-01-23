@@ -46,7 +46,7 @@ export const create = async (req: Request, res: Response): Promise<void> => {
                 name, nameIcon, categoryUrl, user
             };
             const result = await categoryRepository.save(data);
-            response(res, 200, result);
+            response(res, 201, result);
         } else {
             response(res, 401, 'Unauthorized')
         }
@@ -57,4 +57,11 @@ export const create = async (req: Request, res: Response): Promise<void> => {
 
 export const update = async (req: Request, res: Response): Promise<void> => {};
 
-export const remove = async (req: Request, res: Response): Promise<void> => {};
+export const remove = async (req: Request, res: Response): Promise<void> => {
+    try {
+        await categoryRepository.delete({id : req.params.id});
+        response(res, 200, "", "Category deleted successfully");
+    } catch (err) {
+        response(res, 500, err)
+    }
+};

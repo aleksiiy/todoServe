@@ -12,27 +12,40 @@ export const create = async (req: Request, res: Response): Promise<void> => {
         const {type, icon, title} = req.body;
         const categoryId = req.body.categoryId ? req.body.categoryId.toString() : undefined;
         const attachmentId = req.body.attachmentId ? req.body.attachmentId.toString() : undefined;
+
+        const data = { icon, type, title }
+        let category, attachment;
+        if (categoryId && !attachmentId) {
+            category = await categoryRepository.findOneByOrFail({id: categoryId});
+            Object.assign(data, {category});
+        }
+        if (attachmentId) {
+            attachment = await attachmentsRepository.findOneByOrFail({id: attachmentId});
+            Object.assign(data, {attachment});
+
+        }
         let result;
         switch (type) {
-            case "folder": {
-                if (categoryId && !attachmentId) {
-                    const category = await categoryRepository.findOneByOrFail({id: categoryId});
-                    result = await attachmentsRepository.save({
-                        icon, type, title, category
-                    });
+            case "files": {
+                for (const file of req.files) {
+                    await attachmentsRepository.save({
+                        ...data,
+                        title: file.originalname,
+                        localFileName: file.filename
+                    })
                 }
-                if (attachmentId) {
-                    const attachment = await attachmentsRepository.findOneByOrFail({id: attachmentId});
-                    result = await attachmentsRepository.save({
-                        icon, type, title, attachment
-                    });
-                }
+                response(res, 201, "File was save");
+                return;
+            }
+            default: {
+                Object.assign(data, {description: req.body.description ? req.body.description : ""});
+                result = await attachmentsRepository.save({
+                    ...data,
+                });
                 break;
             }
-            default:
-                break;
         }
-        response(res, 200, result);
+        response(res, 201, result);
     } catch (err) {
         console.error("ERROR::", err);
         response(res, 400, err);
@@ -59,5 +72,10 @@ export const update = async (req: Request, res: Response): Promise<void> => {
 }
 
 export const remove = async (req: Request, res: Response): Promise<void> => {
-
+    try {
+        await attachmentsRepository.delete({id : req.params.id});
+        response(res, 200, "", "Attachment deleted successfully");
+    } catch (err) {
+        response(res, 500, err)
+    }
 }

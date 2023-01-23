@@ -8,7 +8,7 @@ export class Attachments {
     @PrimaryGeneratedColumn('uuid')
     id: string
 
-    @Column({enum: ["file", "folder", "note"]})
+    @Column({enum: ["files", "folder", "note"]})
     type: AttachmentsType
 
     @Column()
@@ -19,6 +19,9 @@ export class Attachments {
 
     @Column({nullable: true})
     description: string
+
+    @Column({nullable: true})
+    localFileName: string
 
     @ManyToOne(() => Categories, (category) => category.attachments, {onDelete: "CASCADE", onUpdate: "CASCADE"})
     category: Categories
