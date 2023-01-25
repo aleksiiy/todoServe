@@ -7,6 +7,8 @@ import {Categories} from "../../entities/categories.entity";
 
 const userRepository = AppDataSource.getRepository(Users);
 const categoryRepository = AppDataSource.getRepository(Categories);
+
+const JWT_TOKEN_EXPIRATION = 3600;
 export const login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const data: Users = req.body;
     try {
@@ -14,14 +16,20 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
             email: data.email
         });
         if (await nUser.comparisonPassword(data, result)) {
-            response(res, 200, {token: generateToken(result)})
+            res.setHeader(
+                'Set-Cookie',
+                `X-AUTH-TOKEN=${generateToken(result)}; Max-Age=${JWT_TOKEN_EXPIRATION}; Path=/; SameSite=Strict; Secure; HttpOnly`
+            )
+            response(res, 200, {user: {
+                    id: result.id,
+                    email: result.email
+                }});
         } else {
             response(res, 404, 'Email or password is not correct');
         }
     } catch (err) {
         response(res, 400, err);
     }
-    next();
 };
 
 export const register = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

@@ -13,8 +13,8 @@ export const generateToken = (user: { email: string, id: string }) => {
 }
 
 export const getHeaderToken = (req: Request): { status: boolean, data?: JwtPayload | string } => {
-    if (req.headers.authorization && req.headers.authorization.split(" ")[1]) {
-        const token = req.headers.authorization.split(" ")[1];
+    if (req.cookies['X-AUTH-TOKEN']) {
+        const token = req.cookies['X-AUTH-TOKEN'];
         const jwtData = jwt.verify(token, JWT_SALT, {complete: false});
         return {
             status: true,

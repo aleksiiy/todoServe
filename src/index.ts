@@ -21,13 +21,13 @@ app.use(cors());
 app.use(morgan("dev"));
 app.use(cookieParser());
 
-app.get("/lifeCheck", (req: Request, res: Response, next: NextFunction) => {
+app.get("/api/lifeCheck", (req: Request, res: Response, next: NextFunction) => {
     res.send(`Good, time: ${new Date()}`);
     next();
 });
-app.use("/v1/auth", auth);
+app.use("/api/v1/auth", auth);
 // app.use(AuthMiddleware);
-app.use("/v1", AuthMiddleware, index);
+app.use("/api/v1", AuthMiddleware, index);
 app.use("*", (req: Request, res: Response) => {
     res.status(404).send();
 })
