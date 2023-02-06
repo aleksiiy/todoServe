@@ -39,11 +39,18 @@ export const register = async (req: Request, res: Response, next: NextFunction):
             email: data.email
         });
         if(!check) {
-            const user = await nUser.create(data, userRepository);
+            const result = await nUser.create(data, userRepository);
             await categoryRepository.save({
-                user: user
+                user: result
             });
-            response(res, 201, {token: generateToken(user)})
+            res.setHeader(
+                'Set-Cookie',
+                `X-AUTH-TOKEN=${generateToken(result)}; Max-Age=${JWT_TOKEN_EXPIRATION}; Path=/; SameSite=Strict; Secure; HttpOnly`
+            )
+            response(res, 200, {user: {
+                    id: result.id,
+                    email: result.email
+                }});
         } else {
             response(res, 409, 'Email used');
         }
@@ -52,3 +59,11 @@ export const register = async (req: Request, res: Response, next: NextFunction):
     }
     next();
 };
+
+export const logout = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    res.setHeader(
+        'Set-Cookie',
+        `X-AUTH-TOKEN=; Max-Age=0; Path=/`
+    )
+    response(res, 200, 'logout');
+}

@@ -19,6 +19,6 @@ export class Categories {
     @ManyToOne(() => Users, (user) => user.categories, {onDelete: 'CASCADE', onUpdate: 'CASCADE'})
     user: Users
 
-    @OneToMany(() => Attachments, (attachment) => attachment.category, {eager: true})
+    @OneToMany(() => Attachments, (attachment) => attachment.category)
     attachments: Attachments[]
 }

@@ -23,11 +23,15 @@ export const index = async (req: Request, res: Response): Promise<void> => {
 };
 
 export const show = async (req: Request, res: Response): Promise<void> => {
+    console.log("GHJKLKJHGFGHJKKJHGFGHJ")
     try {
         const categoryId = req.params.id;
-        const result = await categoryRepository.findOneByOrFail({
+        const result = await categoryRepository.findOneOrFail({where: {
                 id: categoryId
-            });
+            },
+            relations: {
+                attachments: true
+            }});
         response(res, 200, result);
     } catch (err) {
         console.error("ERROR::", err);
@@ -39,8 +43,11 @@ export const create = async (req: Request, res: Response): Promise<void> => {
     try {
         const userId = req.headers.userId?.toString();
         const {name, nameIcon, categoryUrl} = req.body;
-        await categoryRepository.findOneByOrFail({categoryUrl: categoryUrl});
-        const user = await userRepository.findOneBy({id: userId});
+        const user = await userRepository.findOneByOrFail({id: userId});
+        const used = await categoryRepository.findOneBy({categoryUrl: categoryUrl, user: {id: userId}});
+        if (used) {
+            response(res, 400, 'url already exits');
+        }
         if (userId && user) {
             const data ={
                 name, nameIcon, categoryUrl, user
