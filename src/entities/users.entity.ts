@@ -1,5 +1,5 @@
 import {Entity, Column, PrimaryGeneratedColumn, Repository, OneToMany} from "typeorm";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import {Categories} from "./categories.entity";
 @Entity()
 export class Users {
